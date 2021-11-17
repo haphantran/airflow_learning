@@ -52,7 +52,7 @@ unzip_data = BashOperator(
 
 extract_data_from_csv = BashOperator (
     task_id='extract_data',
-    bash_command = 'cut -d "," -f 1-4 vehicle-data.csv > csv_data.csv',
+    bash_command = 'cut -d "," -f 1-4 /home/project/airflow/dags/finalassignment/staging/vehicle-data.csv > /home/project/airflow/dags/finalassignment/staging/csv_data.csv',
     dag=dag
 )
 
@@ -61,7 +61,7 @@ extract_data_from_csv = BashOperator (
 
 extract_data_from_tsv = BashOperator (
     task_id='extract_data',
-    bash_command = 'cut  -f 5-7 --output-delimiter "," tollplaza-data.tsv > tsv_data.csv',
+    bash_command = "cut -f 5-7 --output-delimiter , /home/project/airflow/dags/finalassignment/staging/tollplaza-data.tsv | sed $'s/[^[:print:]\t]//g'  > /home/project/airflow/dags/finalassignment/staging/tsv_data.csv",
     dag=dag
 )
 
@@ -71,7 +71,7 @@ extract_data_from_tsv = BashOperator (
 
 extract_data_from_fixed_width = BashOperator (
     task_id='extract_data',
-    bash_command = 'cut -c 59-61,63-67 --output-delimiter ","  payment-data.txt > fixed_width_data.csv',
+    bash_command = "cut -c 59-61,63-67 --output-delimiter ','  /home/project/airflow/dags/finalassignment/staging/payment-data.txt > /home/project/airflow/dags/finalassignment/staging/fixed_width_data.csv",
     dag=dag
 )
 
@@ -79,7 +79,22 @@ extract_data_from_fixed_width = BashOperator (
 # task 5: consolidate data
 
 consolidate_data = BashOperator (
-    task_id='extract_data',
-    bash_command = 'paste -d "," csv_data.csv tsv_data.csv fixed_width_data.csv  > extracted_data.csv',
+    task_id='consolidate_data',
+    bash_command = """
+                paste -d "," /home/project/airflow/dags/finalassignment/staging/csv_data.csv /home/project/airflow/dags/finalassignment/staging/tsv_data.csv /home/project/airflow/dags/finalassignment/staging/fixed_width_data.csv  > /home/project/airflow/dags/finalassignment/staging/extracted_data.csv
+                """,
     dag=dag
 )
+
+# task 6: transofrm_data
+transform_data = BashOperator (
+    task_id='transform_data',
+    bash_command = """
+                awk -F, '{$1=toupper($1)}1' OFS=, /home/project/airflow/dags/finalassignment/staging/extracted_data.csv > transformed_data.csv
+                """,
+    dag=dag
+)
+
+
+# task pipeline
+unzip_data >> extract_data_from_csv >> extract_data_from_tsv >> extract_data_from_fixed_width >> consolidate_data >> transform_data
