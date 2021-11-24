@@ -90,7 +90,7 @@ consolidate_data = BashOperator (
 transform_data = BashOperator (
     task_id='transform_data',
     bash_command = """
-                awk -F, '{$1=toupper($1)}1' OFS=, /home/project/airflow/dags/finalassignment/staging/extracted_data.csv > transformed_data.csv
+                awk -F, '{$4=toupper($4)}1' OFS=, /home/project/airflow/dags/finalassignment/staging/extracted_data.csv > transformed_data.csv
                 """,
     dag=dag
 )
