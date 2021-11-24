@@ -37,10 +37,9 @@ dag = DAG(
 
 # define the first task: unzip data
 
-download_and_unzip_command = """
-    wget https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Final%20Assignment/tolldata.tgz -P /home/project/airflow/dags/finalassignment/staging
+download_and_unzip_command = """    
+    curl -o /home/project/airflow/dags/finalassignment/staging/tolldata.tgz https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Final%20Assignment/tolldata.tgz 
     tar zxvf /home/project/airflow/dags/finalassignment/staging/tolldata.tgz
-
     """
 unzip_data = BashOperator(
     task_id='unzip_data',
@@ -51,7 +50,7 @@ unzip_data = BashOperator(
 # task 2: extract data from csv
 
 extract_data_from_csv = BashOperator (
-    task_id='extract_data',
+    task_id='extract_data_CSV',
     bash_command = 'cut -d "," -f 1-4 /home/project/airflow/dags/finalassignment/staging/vehicle-data.csv > /home/project/airflow/dags/finalassignment/staging/csv_data.csv',
     dag=dag
 )
@@ -60,7 +59,7 @@ extract_data_from_csv = BashOperator (
 
 
 extract_data_from_tsv = BashOperator (
-    task_id='extract_data',
+    task_id='extract_data_TSV',
     bash_command = "cut -f 5-7 --output-delimiter , /home/project/airflow/dags/finalassignment/staging/tollplaza-data.tsv | sed $'s/[^[:print:]\t]//g'  > /home/project/airflow/dags/finalassignment/staging/tsv_data.csv",
     dag=dag
 )
@@ -70,7 +69,7 @@ extract_data_from_tsv = BashOperator (
 
 
 extract_data_from_fixed_width = BashOperator (
-    task_id='extract_data',
+    task_id='extract_data_FixedW',
     bash_command = "cut -c 59-61,63-67 --output-delimiter ','  /home/project/airflow/dags/finalassignment/staging/payment-data.txt > /home/project/airflow/dags/finalassignment/staging/fixed_width_data.csv",
     dag=dag
 )
