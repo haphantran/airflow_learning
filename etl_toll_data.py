@@ -39,7 +39,7 @@ dag = DAG(
 
 download_and_unzip_command = """    
     curl -o /home/project/airflow/dags/finalassignment/staging/tolldata.tgz https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Final%20Assignment/tolldata.tgz 
-    tar zxvf /home/project/airflow/dags/finalassignment/staging/tolldata.tgz
+    tar zxvf /home/project/airflow/dags/finalassignment/staging/tolldata.tgz -C /home/project/airflow/dags/finalassignment/staging/
     """
 unzip_data = BashOperator(
     task_id='unzip_data',
